@@ -5,5 +5,5 @@ tmux_options: -L ms-web-live
 windows:
   - Vim: vim
   - Terminal:
-  - Server: yarn develop
+  - Server: yarn dev
   - Test:
