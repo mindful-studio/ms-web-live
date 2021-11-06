@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+mkdir -p .tmp
+rm -f .tmp/dump.gz
+
+
+docker run \
+  --rm \
+  --network host \
+  mongo:4.2.8 \
+    mongodump \
+      --uri=$1 \
+      --archive \
+      --gzip \
+    | cat > .tmp/dump.gz
+
+[[ $? -eq 0 ]] || exit 1
+
+
+docker run \
+  --rm \
+  --network host \
+  mongo:4.2.8 \
+    mongo $2 --eval "db.dropDatabase()"
+
+[[ $? -eq 0 ]] || exit 1
+
+
+cat .tmp/dump.gz | docker run \
+  -i \
+  --rm \
+  --network host \
+  mongo:4.2.8 \
+    mongorestore \
+      --uri=$2 \
+      --archive \
+      --gzip
+
+
+# rm -rf .migrate.tmp && mkdir .migrate.tmp
+
+# collections=(
+#   projects
+#   users-permissions_permission
+# )
+
+# for collection in "${collections[@]}"
+# do
+#   docker run \
+#     --rm \
+#     --network host \
+#     mongo:4.2.8 \
+#       mongoexport \
+#         --uri=$1 \
+#         --collection=$collection \
+#       > ".migrate.tmp/${collection}.json"
+
+#   [[ $? -eq 0 ]] || exit 1
+# done
+
+# docker run \
+#   --rm \
+#   --network host \
+#   mongo:4.2.8 \
+#     mongo $2 --eval \
+#       'db.getCollection("users-permissions_permission").remove({})'
+
+# [[ $? -eq 0 ]] || exit 1
+
+# for collection in "${collections[@]}"
+# do
+#   cat ".migrate.tmp/${collection}.json" | docker run \
+#     -i \
+#     --rm \
+#     --network host \
+#     mongo:4.2.8 \
+#       mongoimport \
+#         --uri=$2 \
+#         --mode=upsert \
+#         --collection=$collection
+#   [[ $? -eq 0 ]] || exit 1
+# done
+
+# rm -rf .migrate.tmp && mkdir .migrate.tmp

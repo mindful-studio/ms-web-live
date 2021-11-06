@@ -1,0 +1,8 @@
+{
+  "extends": "@mindfulstudio/ms-web-live-tsconfig",
+  "compilerOptions": {
+    "types": ["@emotion/core"]
+  },
+  "exclude": ["node_modules"],
+  "include": ["**/*.ts", "**/*.tsx"]
+}

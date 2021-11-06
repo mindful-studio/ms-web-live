@@ -1,0 +1,23 @@
+{
+  "name": "@mindfulstudio/ms-web-live-types",
+  "version": "0.1.0",
+  "description": "MS Web Live Typescript types",
+  "license": "UNLICENSED",
+  "main": "types/index",
+  "scripts": {
+    "format": "prettier . --write",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "cp package.json types/"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mindfulstudio/ms-web-live-tsconfig": "0.1.0",
+    "superstruct": "^0.15.3"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1",
+    "typescript": "^4.4.4"
+  }
+}

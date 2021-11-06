@@ -1,0 +1,5 @@
+{
+  "extends": "@mindfulstudio/ms-web-live-tsconfig",
+  "exclude": ["node_modules"],
+  "include": ["types/*.ts"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@mindfulstudio/ms-web-live-tsconfig",
+  "version": "0.1.0",
+  "description": "TS config for MS Web Live",
+  "main": "tsconfig.json",
+  "files": [
+    "tsconfig.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

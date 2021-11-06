@@ -1,0 +1,40 @@
+{
+  "name": "@mindfulstudio/ms-web-live-cms",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "gcp-build": "strapi build",
+    "strapi": "strapi",
+    "deploy:stage": "gcloud app deploy app.stage.yml --project $GCLOUD_PROJECT_ID_STAGE --quiet",
+    "deploy:prod": "gcloud app deploy app.prod.yml --project $GCLOUD_PROJECT_ID_PROD --quiet",
+    "migrate": "./scripts/migrate"
+  },
+  "dependencies": {
+    "koa-sslify": "^4.0.3",
+    "strapi": "3.4.0",
+    "strapi-admin": "3.4.0",
+    "strapi-connector-mongoose": "3.4.0",
+    "strapi-plugin-content-manager": "3.4.0",
+    "strapi-plugin-content-type-builder": "3.4.0",
+    "strapi-plugin-email": "3.4.0",
+    "strapi-plugin-graphql": "3.4.0",
+    "strapi-plugin-upload": "3.4.0",
+    "strapi-plugin-users-permissions": "3.4.0",
+    "strapi-utils": "3.4.0"
+  },
+  "author": {
+    "name": "A Strapi developer"
+  },
+  "strapi": {
+    "uuid": "720d267f-dfc7-4ba9-bc7b-4c87ce227d6a"
+  },
+  "engines": {
+    "node": "14.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
