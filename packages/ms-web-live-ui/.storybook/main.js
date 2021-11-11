@@ -7,7 +7,7 @@ module.exports = {
   addons: ["@storybook/addon-links", "@storybook/addon-essentials"],
 
   webpackFinal: (config) => {
-    const spriteCondition = { and: [/images\/svg/, /\.svg$/] };
+    const spriteCondition = { and: [/svg-sprites/, /\.svg$/] };
 
     config.module.rules.find((r) =>
       r.test.test("./image.svg")

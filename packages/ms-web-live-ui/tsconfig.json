@@ -1,7 +1,12 @@
 {
   "extends": "@mindfulstudio/ms-web-live-tsconfig",
   "compilerOptions": {
-    "types": ["@emotion/core"]
+    "types": ["@emotion/core", "@types/node"],
+    "plugins": [
+      {
+        "name": "typescript-styled-plugin"
+      }
+    ]
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx"]
