@@ -83,8 +83,7 @@ const Logo = (() => {
   );
 })();
 
-const videoSrc =
-  "https://player.vimeo.com/external/609649648.m3u8?s=1fd23ec0f437a504a9b2cce3e4db2233de3b7052";
+const videoSrc = "https://hls.jakes.world/hls/stream.m3u8";
 
 function getNonActiveGuests(guests: Guest[], session?: Session) {
   return typeof session === "undefined"
@@ -288,7 +287,7 @@ function MainPage({ guests: initialGuests }: Props) {
       <SessionContext.Provider value={session}>
         <Background>
           <Video
-            autoPlay={false}
+            autoPlay={true}
             muted
             ref={$video}
             poster={require("../images/poster.jpg").default.src}
