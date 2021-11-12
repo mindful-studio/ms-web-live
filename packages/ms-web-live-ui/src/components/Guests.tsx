@@ -5,7 +5,11 @@ import { useEffect, useRef } from "react";
 import useSession from "../hooks/use-session";
 import camera from "../images/svg-sprites/camera.svg";
 
-type Props = { guests: GuestType[] };
+type Props = {
+  guests: GuestType[];
+  activeGuestStream?: MediaStream;
+  streams: { sender: GuestType; stream: MediaStream }[];
+};
 
 const Root = styled.div`
   display: flex;
@@ -49,14 +53,15 @@ const Label = styled.div`
   text-overflow: ellipsis;
 `;
 
+const Video = styled.video`
+  height: 120px;
+  width: 90px;
+  object-fit: cover;
+`;
+
 const ActiveGuest = (() => {
   const Root = styled.div`
     margin-right: 50px;
-    width: 90px;
-  `;
-
-  const Video = styled.video`
-    height: 120px;
     width: 90px;
   `;
 
@@ -97,7 +102,7 @@ const ActiveGuest = (() => {
         $video.current.srcObject = stream;
       }
     }, []);
-    return <Video ref={$video} />;
+    return <Video autoPlay ref={$video} />;
   };
 
   const Content = ({ stream }: { stream?: MediaStream }) => {
@@ -157,28 +162,43 @@ const Guest = (() => {
     }
   `;
 
-  return ({ id }: GuestType) => {
+  return ({ id, stream }: GuestType & { stream?: MediaStream }) => {
+    const $video = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+      if ($video.current !== null && stream) {
+        $video.current.srcObject = stream;
+      }
+    }, [stream]);
+
     return (
       <Root>
         <Header>
           <Label>{id}</Label>
         </Header>
-        <Frame></Frame>
+        <Frame>
+          <Video autoPlay ref={$video} />
+        </Frame>
       </Root>
     );
   };
 })();
 
-const Guests = ({ guests }: Props) => {
+const Guests = ({ guests, streams }: Props) => {
   const session = useSession();
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <Root>
-      <ActiveGuest guest={session?.guest} />
+      <ActiveGuest guest={session.guest} stream={session.stream} />
       <Separator />
-      {guests.map((g) => (
-        <Guest key={g.id} {...g} />
-      ))}
+      {guests.map((g) => {
+        let stream = streams.find((s) => s.sender.id === g.id);
+        return <Guest key={g.id} {...g} stream={stream && stream.stream} />;
+      })}
     </Root>
   );
 };

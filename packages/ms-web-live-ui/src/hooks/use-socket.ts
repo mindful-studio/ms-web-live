@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Guest } from "@mindfulstudio/ms-web-live-types";
 import { io } from "socket.io-client";
 
@@ -9,29 +9,23 @@ type Props = {
 };
 
 const useSocket = ({ onUpdate }: Props) => {
-  const [connected, setConnected] = useState(false);
-  const socket = useRef<Socket>(null);
+  const [socket, setSocket] = useState<Socket>();
 
   useEffect(() => {
-    socket.current = io();
+    const s = io();
 
-    socket.current.on("connect", () => {
-      setConnected(true);
+    s.on("connect", () => {
+      setSocket(s);
     });
 
-    socket.current.on("update", onUpdate);
+    s.on("update", onUpdate);
 
-    () => {
-      if (socket.current != null) {
-        socket.current.close();
-      }
+    return () => {
+      s.close();
     };
   }, []);
 
-  return {
-    connected,
-    socket,
-  };
+  return socket;
 };
 
 export default useSocket;

@@ -17,10 +17,25 @@ let sockets: socketio.Socket[] = [];
 
 io.on("connection", (socket) => {
   sockets.push(socket);
+
   io.emit(
     "update",
     sockets.map((s) => ({ id: s.id }))
   );
+
+  socket.on("candidate", ({ sender, recipient, candidate }) => {
+    socket.to(recipient.id).emit("candidate", { sender, candidate });
+  });
+
+  socket.on("offer", ({ sender, recipient, offer }) => {
+    socket.to(recipient.id).emit("offer", { sender, offer });
+  });
+
+  socket.on("answer", ({ sender, recipient, answer }) => {
+    console.log(`answering from:${sender.id} to:${recipient.id}`);
+    socket.to(recipient.id).emit("answer", { sender, answer });
+  });
+
   socket.on("disconnect", () => {
     sockets = sockets.filter((g) => g.id !== socket.id);
     io.emit(

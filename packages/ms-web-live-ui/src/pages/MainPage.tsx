@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Guest, Session } from "@mindfulstudio/ms-web-live-types";
-import { useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import Guests from "../components/Guests";
 import useHls from "../hooks/use-hls";
 import { SessionContext } from "../hooks/use-session";
@@ -86,100 +86,202 @@ const Logo = (() => {
 const videoSrc =
   "https://player.vimeo.com/external/609649648.m3u8?s=1fd23ec0f437a504a9b2cce3e4db2233de3b7052";
 
-function getNonActiveGuests(guests: Guest[], session: Session) {
-  return session === null
+function getNonActiveGuests(guests: Guest[], session?: Session) {
+  return typeof session === "undefined"
     ? guests
     : guests.filter((g) => g.id !== session.guest.id);
+}
+
+const rtcConfig: RTCConfiguration = {
+  iceServers: [
+    {
+      urls: "turn:ice.mindfulstudio.io:3478",
+      username: "ice",
+      credential: "ice",
+    },
+  ],
+};
+
+type GuestPeerConnection = {
+  guest: Guest;
+  pc: RTCPeerConnection;
+};
+
+type TrackCallback = (sender: Guest, stream: MediaStream) => void;
+
+function getPeer(
+  peers: MutableRefObject<GuestPeerConnection[]>,
+  guest: Guest,
+  session: Session,
+  onTrack: TrackCallback
+): GuestPeerConnection {
+  let peer;
+  peer = peers.current.find((p) => p.guest.id === guest.id);
+  if (!peer) {
+    peer = addPeer(peers, guest, session, onTrack);
+  }
+  return peer;
+}
+
+function addPeer(
+  peers: MutableRefObject<GuestPeerConnection[]>,
+  guest: Guest,
+  session: Session,
+  onTrack: TrackCallback
+) {
+  const pc = new RTCPeerConnection(rtcConfig);
+  const peer = { guest, pc };
+  peers.current.push(peer);
+
+  const { socket } = session;
+
+  pc.addEventListener("negotiationneeded", async () => {
+    console.log("on negotiation needed");
+
+    await pc.setLocalDescription(
+      await pc.createOffer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
+      })
+    );
+
+    socket.emit("offer", {
+      sender: session.guest,
+      recipient: guest,
+      offer: pc.localDescription,
+    });
+  });
+
+  pc.addEventListener("icecandidate", ({ candidate }) => {
+    console.log("on ice candidate");
+
+    socket.emit("candidate", {
+      sender: session.guest,
+      recipient: guest,
+      candidate,
+    });
+  });
+
+  pc.addEventListener("track", (event) => {
+    console.log("on track", event);
+    onTrack(guest, event.streams[0]);
+    // Don't set srcObject again if it is already set.
+    // if (remoteView.srcObject) return;
+    // remoteView.srcObject = event.streams[0];
+  });
+
+  session.stream
+    .getTracks()
+    .forEach((track) => pc.addTrack(track, session.stream));
+
+  return peer;
 }
 
 function MainPage({ guests: initialGuests }: Props) {
   const [$video] = useHls(videoSrc);
   const [guests, setGuests] = useState<Guest[]>(initialGuests);
-  const [session, setSession] = useState<Session>(null);
+  const [session, setSession] = useState<Session>();
+  const [activeGuestStream, setActiveGuestStream] = useState<MediaStream>();
+  const peerConnections = useRef<GuestPeerConnection[]>([]);
+  const [streams, setStreams] = useState<
+    { sender: Guest; stream: MediaStream }[]
+  >([]);
+  const init = useRef(false);
 
-  const { socket, connected } = useSocket({
+  const socket = useSocket({
     onUpdate: (guests) => setGuests(guests),
   });
 
   useEffect(() => {
-    if (connected && socket.current !== null) {
-      setSession({ guest: { id: socket.current.id } });
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => setActiveGuestStream(stream));
+  }, []);
+
+  useEffect(() => {
+    if (socket && activeGuestStream && !session) {
+      setSession({
+        guest: { id: socket.id },
+        socket,
+        stream: activeGuestStream,
+      });
+    }
+  }, [socket, activeGuestStream]);
+
+  const onTrack: TrackCallback = (sender, stream) => {
+    console.log("setting");
+    setStreams([...streams, { sender, stream }]);
+  };
+
+  useEffect(() => {
+    if (!session || init.current === true) {
+      return;
     }
 
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
+    const { socket } = session;
 
-    // Send any ice candidates to the other peer.
-    pc.onicecandidate = ({ candidate }) => {
-      console.log("ic");
-      console.log(candidate);
-      // signaling.send({candidate})
-    };
+    guests.forEach((g) => addPeer(peerConnections, g, session, onTrack));
 
-    // Let the "negotiationneeded" event trigger offer generation.
-    pc.onnegotiationneeded = async () => {
-      console.log("nn");
-      try {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        console.log(offer);
-        // Send the offer to the other peer.
-        // signaling.send({ desc: pc.localDescription });
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    socket.on(
+      "offer",
+      async (message: { sender: Guest; offer: RTCSessionDescriptionInit }) => {
+        console.log("receive offer from", message.sender.id);
 
-    // Once remote track media arrives, show it in remote video element.
-    pc.ontrack = (event) => {
-      // console.log("t");
-      // Don't set srcObject again if it is already set.
-      // if (remoteView.srcObject) return;
-      // remoteView.srcObject = event.streams[0];
-    };
+        const { pc } = getPeer(
+          peerConnections,
+          message.sender,
+          session,
+          onTrack
+        );
 
-    // Call start() to initiate.
-    async function start() {
-      try {
-        // Get local stream, show it in self-view, and add it to be sent.
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+        await pc.setRemoteDescription(message.offer);
+        await pc.setLocalDescription(await pc.createAnswer());
+
+        console.log(
+          `answering from:${session.guest.id} to:${message.sender.id}`
+        );
+
+        socket.emit("answer", {
+          sender: session.guest,
+          recipient: message.sender,
+          answer: pc.localDescription,
         });
-        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-        // console.log(stream);
-        // selfView.srcObject = stream;
-      } catch (err) {
-        console.error(err);
       }
-    }
-    start();
+    );
 
-    // signaling.onmessage = async ({ desc, candidate }) => {
-    //   try {
-    //     if (desc) {
-    //       // If you get an offer, you need to reply with an answer.
-    //       if (desc.type === "offer") {
-    //         await pc.setRemoteDescription(desc);
-    //         const stream = await navigator.mediaDevices.getUserMedia(
-    //           constraints
-    //         );
-    //         stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-    //         await pc.setLocalDescription(await pc.createAnswer());
-    //         signaling.send({ desc: pc.localDescription });
-    //       } else if (desc.type === "answer") {
-    //         await pc.setRemoteDescription(desc);
-    //       } else {
-    //         console.log("Unsupported SDP type.");
-    //       }
-    //     } else if (candidate) {
-    //       await pc.addIceCandidate(candidate);
-    //     }
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // };
-  }, [connected]);
+    socket.on(
+      "answer",
+      async (message: { sender: Guest; answer: RTCSessionDescriptionInit }) => {
+        console.log("receive answer");
+
+        const { pc } = getPeer(
+          peerConnections,
+          message.sender,
+          session,
+          onTrack
+        );
+        await pc.setRemoteDescription(message.answer);
+        console.log(message.answer);
+      }
+    );
+
+    socket.on(
+      "candidate",
+      (message: { sender: Guest; candidate: RTCIceCandidate }) => {
+        console.log("receive candidate");
+
+        const { pc } = getPeer(
+          peerConnections,
+          message.sender,
+          session,
+          onTrack
+        );
+        pc.addIceCandidate(message.candidate);
+      }
+    );
+
+    init.current = true;
+  }, [session]);
 
   return (
     <Root>
@@ -196,7 +298,10 @@ function MainPage({ guests: initialGuests }: Props) {
         </Background>
         <Content>
           <GuestsContainer>
-            <Guests guests={getNonActiveGuests(guests, session)} />
+            <Guests
+              guests={getNonActiveGuests(guests, session)}
+              streams={streams}
+            />
           </GuestsContainer>
           <Footer>
             <Logo />
