@@ -1,7 +1,9 @@
 {
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "packages": ["packages/*"],
+  "packages": [
+    "packages/*"
+  ],
   "command": {
     "version": {
       "message": "chore(release): publish %s",
@@ -11,5 +13,6 @@
     "add": {
       "exact": true
     }
-  }
+  },
+  "version": "0.2.0-beta.0"
 }
