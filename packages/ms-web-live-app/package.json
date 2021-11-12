@@ -1,6 +1,6 @@
 {
   "name": "@mindfulstudio/ms-web-live-app",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "private": true,
   "scripts": {
     "dev": "nodemon",

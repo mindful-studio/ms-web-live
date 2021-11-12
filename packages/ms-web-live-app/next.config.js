@@ -31,6 +31,7 @@ module.exports = withPlugins(plugins, {
         ...config.externals,
         react: "React",
         "react-dom": "ReactDOM",
+        "hls.js": "Hls",
       };
     }
 

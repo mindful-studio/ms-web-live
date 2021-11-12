@@ -15,6 +15,22 @@ export default function Home({ guests }: { guests: Guest[] }) {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.css"
         />
+        {process.env.NODE_ENV === "production" && (
+          <>
+            <script
+              crossOrigin=""
+              src="https://unpkg.com/react@17/umd/react.production.min.js"
+            />
+            <script
+              crossOrigin=""
+              src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"
+            />
+            <script
+              crossOrigin=""
+              src="https://unpkg.com/hls.js@1.0.12/dist/hls.min.js"
+            />
+          </>
+        )}
       </Head>
       <MainPage guests={guests} />
     </div>
