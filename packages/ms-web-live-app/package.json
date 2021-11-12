@@ -1,6 +1,6 @@
 {
   "name": "@mindfulstudio/ms-web-live-app",
-  "version": "0.2.0-beta.0",
+  "version": "0.2.0-beta.1",
   "private": true,
   "scripts": {
     "dev": "nodemon",
@@ -14,7 +14,7 @@
     "@apollo/client": "^3.3.6",
     "@mindfulstudio/ms-web-live-tsconfig": "0.2.0-beta.0",
     "@mindfulstudio/ms-web-live-types": "0.2.0-beta.0",
-    "@mindfulstudio/ms-web-live-ui": "0.2.0-beta.0",
+    "@mindfulstudio/ms-web-live-ui": "0.2.0-beta.1",
     "@next/bundle-analyzer": "^12.0.3",
     "graphql": "^15.4.0",
     "next": "12.0.3",
