@@ -1,6 +1,6 @@
 {
   "name": "@mindfulstudio/ms-web-live-types",
-  "version": "0.2.0-beta.0",
+  "version": "0.2.0-beta.4",
   "description": "MS Web Live Typescript types",
   "license": "UNLICENSED",
   "main": "types/index",
@@ -13,7 +13,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@mindfulstudio/ms-web-live-tsconfig": "0.2.0-beta.0",
+    "@mindfulstudio/ms-web-live-tsconfig": "0.2.0-beta.4",
     "superstruct": "^0.15.3"
   },
   "devDependencies": {

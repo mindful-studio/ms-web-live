@@ -6,6 +6,7 @@ packages=(
   packages/ms-web-live-cms
   packages/ms-web-live-ui
   packages/ms-web-live-app
+  packages/ms-web-live-io
 )
 
 for i in "${packages[@]}"
