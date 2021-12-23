@@ -15,10 +15,11 @@ const plugins = [
 
 module.exports = withPlugins(plugins, {
   webpack: (config, { isServer }) => {
-    const spriteCondition = { and: [/images\/svg/, /\.svg$/] };
+    const spriteCondition = { and: [/svg-sprites/, /\.svg$/] };
 
-    config.module.rules.find((r) => r.loader === "next-image-loader").exclude =
-      spriteCondition;
+    config.module.rules.find(
+      (r) => r.loader === "next-image-loader"
+    ).exclude = spriteCondition;
 
     config.module.rules.push({
       test: spriteCondition,
@@ -30,6 +31,7 @@ module.exports = withPlugins(plugins, {
         ...config.externals,
         react: "React",
         "react-dom": "ReactDOM",
+        "hls.js": "Hls",
       };
     }
 

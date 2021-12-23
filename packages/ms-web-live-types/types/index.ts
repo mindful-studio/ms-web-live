@@ -1,1 +1,2 @@
-export type { Project } from "./Project";
+export type { Guest } from "./Guest";
+export type { Session } from "./Session";

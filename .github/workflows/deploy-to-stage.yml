@@ -40,6 +40,7 @@ jobs:
           git push --tags
 
   deploy_strapi:
+    if: ${{ false }}
     name: Deploy Strapi
     runs-on: ubuntu-latest
     steps:

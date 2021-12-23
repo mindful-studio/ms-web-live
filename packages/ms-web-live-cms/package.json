@@ -1,7 +1,7 @@
 {
   "name": "@mindfulstudio/ms-web-live-cms",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0-beta.0",
   "description": "A Strapi application",
   "scripts": {
     "dev": "strapi develop",
@@ -14,27 +14,28 @@
     "migrate": "./scripts/migrate"
   },
   "dependencies": {
-    "koa-sslify": "^4.0.3",
-    "strapi": "3.4.0",
-    "strapi-admin": "3.4.0",
-    "strapi-connector-mongoose": "3.4.0",
-    "strapi-plugin-content-manager": "3.4.0",
-    "strapi-plugin-content-type-builder": "3.4.0",
-    "strapi-plugin-email": "3.4.0",
-    "strapi-plugin-graphql": "3.4.0",
-    "strapi-plugin-upload": "3.4.0",
-    "strapi-plugin-users-permissions": "3.4.0",
-    "strapi-utils": "3.4.0"
+    "koa-sslify": "^5.0.0",
+    "strapi": "3.6.8",
+    "strapi-admin": "3.6.8",
+    "strapi-connector-mongoose": "3.6.8",
+    "strapi-plugin-content-manager": "3.6.8",
+    "strapi-plugin-content-type-builder": "3.6.8",
+    "strapi-plugin-email": "3.6.8",
+    "strapi-plugin-graphql": "^3.6.8",
+    "strapi-plugin-i18n": "3.6.8",
+    "strapi-plugin-upload": "3.6.8",
+    "strapi-plugin-users-permissions": "3.6.8",
+    "strapi-utils": "3.6.8"
   },
   "author": {
     "name": "A Strapi developer"
   },
   "strapi": {
-    "uuid": "720d267f-dfc7-4ba9-bc7b-4c87ce227d6a"
+    "uuid": "11094e9a-6164-444e-be01-e695f2431c6f"
   },
   "engines": {
-    "node": "14.x.x",
-    "npm": ">=6.0.0"
+    "node": "^14",
+    "npm": "^6.0.0"
   },
   "license": "MIT"
 }

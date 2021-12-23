@@ -1,8 +1,7 @@
 {
   "extends": "@mindfulstudio/ms-web-live-tsconfig",
   "compilerOptions": {
-    "jsxImportSource": "@emotion/react",
-    "incremental": true
+    "jsxImportSource": "@emotion/react"
   },
   "exclude": ["node_modules"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]

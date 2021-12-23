@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "private": true,
   "scripts": {
     "init-versioning": "yarn lerna:publish && git push --tags",
     "version:beta": "npx lerna version --conventional-prerelease --preid beta --no-changelog --amend",
@@ -10,13 +11,10 @@
     "packages": [
       "packages/*"
     ],
-    "nohoist": []
+    "nohoist": [
+      "**/ms-web-live-cms/**"
+    ]
   },
-  "resolutions": {
-    "react": "17.0.1",
-    "react-dom": "17.0.1"
-  },
-  "private": true,
   "devDependencies": {
     "lerna": "^3.22.1"
   }

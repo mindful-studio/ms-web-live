@@ -1,4 +1,4 @@
-name: "MS Web Live UI"
+name: "MS Web Live IO"
 attach: false
 tmux_options: -L ms-web-live
 
